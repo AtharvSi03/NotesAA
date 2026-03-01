@@ -108,10 +108,26 @@
         alert("Notes Name cannot contain spaces.");
         return;
       }
-      console.log("Owner:", owner);
-      console.log("Notes Name:", name);
-      console.log("Description:", description);
-      alert("Notes generation logic will run here.");
+      fetch("https://notesaa.onrender.com/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          owner: owner,
+          name: name,
+          description: description
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Server Response:", data);
+        alert("Response received! Check console.");
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        alert("Something went wrong.");
+      });
     });
   </script>
 </body>
