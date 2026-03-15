@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notes AA</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="icon" type="image/x-icon" href="img/favicon.png">
+  <style>
+    .navbar {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-brand img {
+      max-height: 60px;
+    }
+    .italics { font-style: italic; }
+    .bold { font-weight: bold; }
+
+    /* ── Upload Drop Zone ── */
+    #dropZone {
+      border: 2px dashed #adb5bd;
+      border-radius: 12px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: transparent;
+    }
+    #dropZone.drag-over {
+      border-color: #dc3545;
+      background: rgba(220, 53, 69, 0.05);
+    }
+    #dropZone .upload-icon {
+      font-size: 2.5rem;
+      color: #6c757d;
+      margin-bottom: 0.5rem;
+    }
+    #dropZone p { margin: 0; color: #6c757d; font-size: 0.93rem; }
+    #dropZone .browse-link {
+      color: #dc3545;
+      font-weight: 600;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* ── File Pill ── */
+    .file-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 20px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.88rem;
+      max-width: 100%;
+      overflow: hidden;
+    }
+    [data-bs-theme="dark"] .file-pill {
+      background: #2c2c2c;
+      border-color: #444;
+    }
+    .file-pill .file-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 260px;
+    }
+    .file-pill .remove-file {
+      cursor: pointer;
+      color: #dc3545;
+      font-size: 1rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .file-pill .file-icon { flex-shrink: 0; }
+
+    /* ── PDF Modal ── */
+    #pdfImageModal .modal-header { border-bottom: none; }
+    #pdfImageModal .modal-footer { border-top: none; }
+    #pdfImageModal .modal-body p { font-size: 0.95rem; }
+    .ocr-badge {
+      display: inline-block;
+      background: rgba(220,53,69,0.1);
+      color: #dc3545;
+      border: 1px solid rgba(220,53,69,0.3);
+      border-radius: 8px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    /* ── Processing Overlay ── */
+    #processingOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    #processingOverlay.show { display: flex; }
+    #processingOverlay p { color: #fff; font-size: 1rem; margin: 0; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navbar ── -->
+  <nav class="navbar navbar-expand-lg bg-body sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <img src="img/logo.png" alt="Notes AA Logo">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item" style="margin-right: 15px;"><a class="nav-link" href="#">Pricing</a></li>
+          <li class="nav-item">
+            <a href="new_notes.html"><button type="button" class="btn btn-danger">New Notes</button></a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Main Section ── -->
+  <section id="create" class="pt-3 text-center">
+    <div class="container" style="text-align: left;">
+      <h1>Create New Notes</h1>
+      <p>Notes created here are stored only in this browser session. If you close this tab, your files will be permanently removed.</p>
+      <p class="italics">Required fields are marked with an asterisk (*)</p>
+      <p class="text-danger">Please remember to disconnect your Google Drive PDF when done.</p>
+    </div>
+
+    <div class="container">
+      <!-- General -->
+      <h5>General</h5>
+      <div class="row p-3">
+        <div class="col-md-4" style="text-align: left;">
+          <p>Owner *</p>
+          <select id="ownerDropdown" name="service" class="form-select" required>
+            <option>Guest User</option>
+          </select>
+        </div>
+        <div class="col-md-8" style="text-align: left;">
+          <p>Notes Name *</p>
+          <input type="text" class="form-control" id="notesName" placeholder="Enter notes name">
+          <span class="text-secondary">Do not put any spaces</span>
+        </div>
+        <div class="col-md-12 mt-3" style="text-align: left;">
+          <p>Notes Description</p>
+          <input type="text" class="form-control" id="notesDescription" maxlength="400" placeholder="Enter notes description">
+          <span id="charCount" class="text-secondary">0 / 400 characters</span>
+        </div>
+      </div>
+
+      <!-- Upload -->
+      <h5 class="mt-2">Upload File</h5>
+      <div class="row p-3">
+        <div class="col-12" style="text-align: left;">
+          <!-- Hidden file input -->
+          <input type="file" id="fileInput" accept=".pdf,.docx,.txt" style="display:none;">
+
+          <!-- Drop zone -->
+          <div id="dropZone">
+            <div class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+            <p><strong>Drag &amp; drop your file here</strong></p>
+            <p class="mt-1">or <span class="browse-link" id="browseBtn">browse to upload</span></p>
+            <p class="mt-2"><small>Supported formats: <strong>PDF</strong>, <strong>DOCX</strong>, <strong>TXT</strong> &nbsp;·&nbsp; Max 25 MB</small></p>
+          </div>
+
+          <!-- Selected file display -->
+          <div id="fileDisplay" class="mt-3" style="display:none;">
+            <span class="file-pill">
+              <i class="bi bi-file-earmark-text file-icon text-danger"></i>
+              <span class="file-name" id="fileNameLabel"></span>
+              <i class="bi bi-x-circle-fill remove-file" id="removeFileBtn" title="Remove file"></i>
+            </span>
+            <!-- OCR badge shown only for PDFs -->
+            <span id="ocrBadge" class="ocr-badge ms-2" style="display:none;"><i class="bi bi-eye-fill me-1"></i>Image PDF — OCR enabled</span>
+          </div>
+        </div>
+
+        <div class="col-md-12 mt-3" style="text-align: center;">
+          <button id="generateBtn" type="button" class="btn btn-primary" style="padding-left: 1rem; padding-right: 1rem;">Generate Notes</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PDF Image-Scan Modal ── -->
+  <div class="modal fade" id="pdfImageModal" tabindex="-1" aria-labelledby="pdfImageModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="pdfImageModalLabel">
+            <i class="bi bi-file-earmark-pdf text-danger me-2"></i>PDF Source Type
+          </h5>
+        </div>
+        <div class="modal-body">
+          <p>We detected you uploaded a <strong>PDF file</strong>.</p>
+          <p>Was this PDF <strong>created from scanned images or photographs</strong> (e.g. a scanned textbook, photographed notes)?</p>
+          <p class="text-secondary" style="font-size:0.87rem;">
+            If yes, we will use <strong>OCR (Optical Character Recognition)</strong> to extract the text from the images before generating your notes. This takes a little longer but ensures accurate results.
+          </p>
+          <div class="alert alert-warning py-2 px-3 mb-0" style="font-size:0.87rem;">
+            <i class="bi bi-info-circle me-1"></i>
+            If you're unsure, choose <strong>"Yes"</strong> — OCR works on regular PDFs too.
+          </div>
+        </div>
+        <div class="modal-footer gap-2 justify-content-center">
+          <button type="button" class="btn btn-outline-secondary px-4" id="pdfNoBtn">
+            <i class="bi bi-file-text me-1"></i>No, it's a regular PDF
+          </button>
+          <button type="button" class="btn btn-danger px-4" id="pdfYesBtn">
+            <i class="bi bi-image me-1"></i>Yes, use OCR
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Processing Overlay ── -->
+  <div id="processingOverlay">
+    <div class="spinner-border text-light" role="status" style="width:3rem;height:3rem;"></div>
+    <p id="processingMsg">Generating your notes…</p>
+  </div>
+
+  <script>
+    /* ─── State ─── */
+    let selectedFile = null;
+    let useOCR = false;
+    let pdfModalResolve = null;
+
+    const fileInput    = document.getElementById('fileInput');
+    const dropZone     = document.getElementById('dropZone');
+    const browseBtn    = document.getElementById('browseBtn');
+    const fileDisplay  = document.getElementById('fileDisplay');
+    const fileNameLbl  = document.getElementById('fileNameLabel');
+    const removeBtn    = document.getElementById('removeFileBtn');
+    const ocrBadge     = document.getElementById('ocrBadge');
+    const generateBtn  = document.getElementById('generateBtn');
+    const descInput    = document.getElementById('notesDescription');
+    const charCount    = document.getElementById('charCount');
+    const pdfModal     = new bootstrap.Modal(document.getElementById('pdfImageModal'));
+    const pdfYesBtn    = document.getElementById('pdfYesBtn');
+    const pdfNoBtn     = document.getElementById('pdfNoBtn');
+    const overlay      = document.getElementById('processingOverlay');
+    const procMsg      = document.getElementById('processingMsg');
+
+    /* ─── Char counter ─── */
+    descInput.addEventListener('input', () => {
+      charCount.textContent = descInput.value.length + ' / 400';
+    });
+
+    /* ─── File selection helpers ─── */
+    function setFile(file) {
+      const allowed = ['application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain'];
+      const extOk = /\.(pdf|docx|txt)$/i.test(file.name);
+      if (!allowed.includes(file.type) && !extOk) {
+        alert('Unsupported file type. Please upload a PDF, DOCX, or TXT file.');
+        return;
+      }
+      if (file.size > 25 * 1024 * 1024) {
+        alert('File is too large. Maximum allowed size is 25 MB.');
+        return;
+      }
+      selectedFile = file;
+      useOCR = false;
+      ocrBadge.style.display = 'none';
+      fileNameLbl.textContent = file.name;
+      fileDisplay.style.display = 'block';
+    }
+
+    function clearFile() {
+      selectedFile = null;
+      useOCR = false;
+      fileInput.value = '';
+      fileDisplay.style.display = 'none';
+      ocrBadge.style.display = 'none';
+    }
+
+    browseBtn.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('click', (e) => { if (e.target !== browseBtn) fileInput.click(); });
+    fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
+    removeBtn.addEventListener('click', clearFile);
+
+    /* Drag & drop */
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+    });
+
+    /* ─── PDF Modal promise wrapper ─── */
+    function askPdfType() {
+      return new Promise((resolve) => {
+        pdfModalResolve = resolve;
+        pdfModal.show();
+      });
+    }
+
+    pdfYesBtn.addEventListener('click', () => {
+      pdfModal.hide();
+      if (pdfModalResolve) { pdfModalResolve(true); pdfModalResolve = null; }
+    });
+    pdfNoBtn.addEventListener('click', () => {
+      pdfModal.hide();
+      if (pdfModalResolve) { pdfModalResolve(false); pdfModalResolve = null; }
+    });
+
+    /* ─── Generate ─── */
+    generateBtn.addEventListener('click', async () => {
+      const owner       = document.getElementById('ownerDropdown').value;
+      const name        = document.getElementById('notesName').value.trim();
+      const description = descInput.value.trim();
+
+      if (!name) { alert('Notes Name is required.'); return; }
+      if (name.includes(' ')) { alert('Notes Name cannot contain spaces.'); return; }
+      if (!selectedFile) { alert('Please upload a file to generate notes from.'); return; }
+
+      /* Ask about PDF type if needed */
+      const isPDF = selectedFile.name.toLowerCase().endsWith('.pdf') ||
+                    selectedFile.type === 'application/pdf';
+      if (isPDF) {
+        useOCR = await askPdfType();
+        if (useOCR) ocrBadge.style.display = 'inline-block';
+      }
+
+      /* Show processing overlay */
+      procMsg.textContent = useOCR
+        ? 'Extracting text from image PDF via OCR…'
+        : 'Generating your notes…';
+      overlay.classList.add('show');
+
+      /* Build FormData */
+      const formData = new FormData();
+      formData.append('owner', owner);
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('file', selectedFile);
+      formData.append('useOCR', useOCR ? 'true' : 'false');
+
+      try {
+        const response = await fetch('https://notesaa.onrender.com/generate', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        console.log('Server Response:', data);
+        overlay.classList.remove('show');
+        alert('Notes generated successfully! Check the console for details.');
+      } catch (error) {
+        console.error('Error:', error);
+        overlay.classList.remove('show');
+        alert('Something went wrong. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html>
