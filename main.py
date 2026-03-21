@@ -4,19 +4,23 @@ from pydantic import BaseModel
 from openai import OpenAI
 import os
 
-# Initialize FastAPI
+# Initialize app
 app = FastAPI()
 
-# Enable CORS (lock this later to your domain)
+# ✅ CORS configuration (IMPORTANT)
+origins = [
+    "https://atharvsi03.github.io",  # your frontend
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,  # use ["*"] for testing if needed
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Initialize OpenAI client using environment variable
+# Initialize OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Request model
@@ -25,7 +29,7 @@ class NotesRequest(BaseModel):
     name: str
     description: str
 
-# Root route (health check)
+# Root route
 @app.get("/")
 async def root():
     return {"message": "NotesAA backend is live 🚀"}
@@ -65,6 +69,7 @@ async def generate_notes(data: NotesRequest):
         }
 
     except Exception as e:
+        print("ERROR:", e)  # shows in Render logs
         return {
             "error": str(e)
         }
