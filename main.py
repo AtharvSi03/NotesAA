@@ -10,8 +10,8 @@ app = FastAPI()
 # CORS configuration (SAFE VERSION)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://atharvsi03.github.io"],  # your frontend
-    allow_credentials=True,
+    allow_origins=["*"],   # allow everything TEMP
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
