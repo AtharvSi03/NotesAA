@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from openai import OpenAI
 import os
 
-# Initialize app
+# Initialize FastAPI app
 app = FastAPI()
 
 # ✅ TEMP CORS (for debugging)
@@ -42,7 +42,10 @@ async def generate_notes(data: NotesRequest):
 
     print("✅ Request received:", data)
 
-    prompt = f"""
+    try:
+        response = client.responses.create(
+            model="gpt-4o-mini",
+            input=f"""
 Create clean, well-structured study notes.
 
 Owner: {data.owner}
@@ -55,30 +58,23 @@ Format with:
 - Short paragraphs
 - Organized sections
 """
-
-    try:
-        response = client.responses.create(
-            model="gpt-4o-mini",
-            input=[
-                {
-                    "role": "system",
-                    "content": "You generate professional academic study notes."
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
         )
 
         print("✅ OpenAI raw response:", response)
 
-        # ✅ SAFE extraction of text
+        # ✅ SUPER SAFE extraction (no crashes)
         generated_text = ""
 
-        for item in response.output:
-            if item.type == "output_text":
-                generated_text += item.text
+        if hasattr(response, "output") and response.output:
+            for item in response.output:
+                if hasattr(item, "content"):
+                    for content in item.content:
+                        if hasattr(content, "text"):
+                            generated_text += content.text
+
+        # fallback if empty
+        if not generated_text:
+            generated_text = "⚠️ No notes generated. Try again."
 
         return {
             "generated_notes": generated_text
