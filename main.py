@@ -7,20 +7,20 @@ import os
 # Initialize app
 app = FastAPI()
 
-# CORS configuration (SAFE VERSION)
+# ✅ TEMP CORS (for debugging)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # allow everything TEMP
+    allow_origins=["*"],  # allow all (TEMP)
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Check API key properly
+# ✅ Get API key
 api_key = os.getenv("OPENAI_API_KEY")
 
 if not api_key:
-    raise ValueError("OPENAI_API_KEY is not set in environment variables")
+    raise ValueError("❌ OPENAI_API_KEY is not set")
 
 # Initialize OpenAI client
 client = OpenAI(api_key=api_key)
@@ -34,11 +34,13 @@ class NotesRequest(BaseModel):
 # Root route
 @app.get("/")
 async def root():
-    return {"message": "NotesAA backend is live"}
+    return {"message": "NotesAA backend is live 🚀"}
 
 # Generate notes route
 @app.post("/generate")
 async def generate_notes(data: NotesRequest):
+
+    print("✅ Request received:", data)
 
     prompt = f"""
 Create clean, well-structured study notes.
@@ -67,18 +69,23 @@ Format with:
                     "content": prompt
                 }
             ],
-            temperature=0.7
         )
 
-        # Safe extraction
-        generated_text = response.output_text
+        print("✅ OpenAI raw response:", response)
+
+        # ✅ SAFE extraction of text
+        generated_text = ""
+
+        for item in response.output:
+            if item.type == "output_text":
+                generated_text += item.text
 
         return {
             "generated_notes": generated_text
         }
 
     except Exception as e:
-        print("❌ ERROR:", e)  # shows in Render logs
+        print("❌ ERROR:", str(e))
         return {
             "error": str(e)
         }
