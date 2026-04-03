@@ -7,21 +7,23 @@ import os
 # Initialize app
 app = FastAPI()
 
-# ✅ CORS configuration (IMPORTANT)
-origins = [
-    "https://atharvsi03.github.io",  # your frontend
-]
-
+# CORS configuration (SAFE VERSION)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # TEMPORARY
+    allow_origins=["https://atharvsi03.github.io"],  # your frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Check API key properly
+api_key = os.getenv("OPENAI_API_KEY")
+
+if not api_key:
+    raise ValueError("OPENAI_API_KEY is not set in environment variables")
+
 # Initialize OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=api_key)
 
 # Request model
 class NotesRequest(BaseModel):
@@ -32,44 +34,51 @@ class NotesRequest(BaseModel):
 # Root route
 @app.get("/")
 async def root():
-    return {"message": "NotesAA backend is live 🚀"}
+    return {"message": "NotesAA backend is live"}
 
 # Generate notes route
 @app.post("/generate")
 async def generate_notes(data: NotesRequest):
 
     prompt = f"""
-    Create clean, well-structured study notes.
+Create clean, well-structured study notes.
 
-    Owner: {data.owner}
-    Title: {data.name}
-    Description: {data.description}
+Owner: {data.owner}
+Title: {data.name}
+Description: {data.description}
 
-    Format with:
-    - Clear headings
-    - Bullet points
-    - Short paragraphs
-    - Organized sections
-    """
+Format with:
+- Clear headings
+- Bullet points
+- Short paragraphs
+- Organized sections
+"""
 
     try:
-        response = client.chat.completions.create(
+        response = client.responses.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You generate professional academic study notes."},
-                {"role": "user", "content": prompt}
+            input=[
+                {
+                    "role": "system",
+                    "content": "You generate professional academic study notes."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
             ],
             temperature=0.7
         )
 
-        generated_text = response.choices[0].message.content
+        # Safe extraction
+        generated_text = response.output_text
 
         return {
             "generated_notes": generated_text
         }
 
     except Exception as e:
-        print("ERROR:", e)  # shows in Render logs
+        print("❌ ERROR:", e)  # shows in Render logs
         return {
             "error": str(e)
         }
