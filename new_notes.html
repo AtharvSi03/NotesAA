@@ -226,59 +226,75 @@ descInput.addEventListener('input', () => {
   charCount.textContent = descInput.value.length + ' / 400';
 });
 
-/* ─── File handling ─── */
-function setFiles(files) {
+/* ─── FILE LOGIC ─── */
+function setFiles(newFiles) {
   const allowedExt = /\.(pdf|txt)$/i;
 
-  let validFiles = [];
-
-  for (let file of files) {
+  for (let file of newFiles) {
     if (!allowedExt.test(file.name)) {
       alert("Only PDF and TXT allowed.");
-      return;
+      continue;
     }
 
     if (file.size > 25 * 1024 * 1024) {
       alert("File too large (max 25MB).");
-      return;
+      continue;
     }
 
-    validFiles.push(file);
+    // 🚫 Prevent duplicate files
+    const alreadyExists = selectedFiles.some(f => f.name === file.name);
+    if (alreadyExists) continue;
+
+    // ✅ ADD instead of overwrite
+    selectedFiles.push(file);
   }
 
-  selectedFiles = validFiles;
+  updateFileDisplay();
+
+  // 🔥 reset so same file can be re-added
+  fileInput.value = '';
+}
+
+/* ─── UPDATE DISPLAY ─── */
+function updateFileDisplay() {
+  if (selectedFiles.length === 0) {
+    fileDisplay.style.display = 'none';
+    return;
+  }
 
   if (selectedFiles.length === 1) {
     fileNameLbl.textContent = selectedFiles[0].name;
   } else {
-    fileNameLbl.textContent = selectedFiles.map(f => f.name).join(", ");
+    fileNameLbl.textContent =
+      selectedFiles.length + " files: " +
+      selectedFiles.map(f => f.name).join(", ");
   }
 
   fileDisplay.style.display = 'block';
 }
 
-/* CLEAR */
+/* ─── CLEAR ALL FILES ─── */
 function clearFile() {
   selectedFiles = [];
   fileInput.value = '';
   fileDisplay.style.display = 'none';
 }
 
-/* INPUT SELECT */
+/* ─── INPUT SELECT ─── */
 fileInput.addEventListener('change', () => {
   if (fileInput.files.length > 0) {
     setFiles(fileInput.files);
   }
 });
 
-/* CLICK */
+/* ─── CLICK ─── */
 browseBtn.addEventListener('click', () => fileInput.click());
 
 dropZone.addEventListener('click', (e) => {
   if (e.target !== browseBtn) fileInput.click();
 });
 
-/* DRAG DROP */
+/* ─── DRAG & DROP ─── */
 dropZone.addEventListener('dragover', (e) => {
   e.preventDefault();
   dropZone.classList.add('drag-over');
@@ -299,7 +315,7 @@ dropZone.addEventListener('drop', (e) => {
 
 removeBtn.addEventListener('click', clearFile);
 
-/* ─── Generate Notes ─── */
+/* ─── GENERATE NOTES ─── */
 generateBtn.addEventListener('click', async () => {
   const owner = document.getElementById('ownerDropdown').value;
   const name = document.getElementById('notesName').value.trim();
