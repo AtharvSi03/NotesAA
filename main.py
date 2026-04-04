@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from typing import List
 import google.generativeai as genai
 import os
 
@@ -16,7 +17,6 @@ app.add_middleware(
 )
 
 # ✅ Gemini setup
-# Make sure GEMINI_API_KEY is set in your Render Environment Variables!
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     print("❌ ERROR: GEMINI_API_KEY not found in environment variables.")
@@ -30,33 +30,35 @@ async def root():
     return {"message": "NotesAA backend is live 🚀"}
 
 
-# 🔥 FIXED FILE + FORM ENDPOINT
+# 🔥 MULTI-FILE SAFE VERSION
 @app.post("/generate")
 async def generate_notes(
     owner: str = Form(...),
     name: str = Form(...),
     description: str = Form(""),
-    file: UploadFile = File(None),
+    files: List[UploadFile] = File(None),   # ✅ CHANGED
     useOCR: str = Form("false")
 ):
     try:
-        print(f"✅ Request from {owner}: {name} (File: {file.filename if file else 'None'})")
+        print(f"✅ Request from {owner}: {name}")
 
         content_to_send = []
 
-        # 🧠 Handle File if it exists
-        if file:
-            # Read the raw bytes from the uploaded file
-            file_bytes = await file.read()
-            
-            # Create the part object for the Gemini API
-            file_part = {
-                "mime_type": file.content_type,  # e.g., 'application/pdf' or 'image/png'
-                "data": file_bytes
-            }
-            content_to_send.append(file_part)
+        # 🧠 Handle MULTIPLE files safely
+        if files:
+            for file in files:
+                print(f"📄 File received: {file.filename}")
 
-        # 🧠 Create the Text Prompt
+                file_bytes = await file.read()
+
+                file_part = {
+                    "mime_type": file.content_type,
+                    "data": file_bytes
+                }
+
+                content_to_send.append(file_part)
+
+        # 🧠 Prompt
         prompt = f"""
         Create clean, well-structured study notes based on the provided content.
 
@@ -66,16 +68,19 @@ async def generate_notes(
         - Extra Description: {description}
 
         Instructions:
-        - Use clear headings (Markdown ## and ###)
+        - Use clear headings
         - Use bullet points for readability
         - Keep paragraphs short
         - Organize by logical sections
-        - If a file is provided, prioritize its specific contents.
+        - If files are provided, combine and prioritize their contents
+        - Do NOT use bold formatting anywhere
+        - If something is important, explicitly write "This paragraph is important!" at the end of that paragraph
+
         """
+
         content_to_send.append(prompt)
 
-        # 🧠 Generate Content
-        # We pass the list [file_part, prompt] so Gemini processes both
+        # 🧠 Generate
         response = model.generate_content(content_to_send)
 
         return {
@@ -84,5 +89,4 @@ async def generate_notes(
 
     except Exception as e:
         print(f"❌ ERROR: {str(e)}")
-        # If there's an error, return a 500 status or a clear error message
         return {"error": f"Internal Server Error: {str(e)}"}

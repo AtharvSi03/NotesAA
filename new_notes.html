@@ -167,14 +167,14 @@
       <div class="row p-3">
         <div class="col-12" style="text-align: left;">
           <!-- Hidden file input -->
-          <input type="file" id="fileInput" accept=".pdf,.docx,.txt" style="display:none;">
+          <input type="file" id="fileInput" accept=".pdf,.txt" multiple style="display:none;"">
 
           <!-- Drop zone -->
           <div id="dropZone">
             <div class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
             <p><strong>Drag & drop your file here</strong></p>
             <p class="mt-1">or <span class="browse-link" id="browseBtn">browse to upload</span></p>
-            <p class="mt-2"><small>Supported formats: <strong>PDF</strong> and <strong>TXT</strong> &nbsp;·&nbsp; Max 25 MB</small> But for now please use only PDF as the website is in testing mode. Thank you!</p>
+            <p class="mt-2"><small>Supported formats: <strong>PDF</strong> and <strong>TXT</strong> &nbsp;·&nbsp; Max 25 MB</small></p>
           </div>
 
           <!-- Selected file display -->
@@ -205,118 +205,97 @@
   </div>
 
   <script>
-  /* ─── State ─── */
-  let selectedFile = null;
-  let useOCR = false;
-  let pdfModalResolve = null;
-  
-  const fileInput    = document.getElementById('fileInput');
-  const dropZone     = document.getElementById('dropZone');
-  const browseBtn    = document.getElementById('browseBtn');
-  const fileDisplay  = document.getElementById('fileDisplay');
-  const fileNameLbl  = document.getElementById('fileNameLabel');
-  const removeBtn    = document.getElementById('removeFileBtn');
-  const ocrBadge     = document.getElementById('ocrBadge');
-  const generateBtn  = document.getElementById('generateBtn');
-  const descInput    = document.getElementById('notesDescription');
-  const charCount    = document.getElementById('charCount');
-  const pdfModal     = new bootstrap.Modal(document.getElementById('pdfImageModal'));
-  const pdfYesBtn    = document.getElementById('pdfYesBtn');
-  const pdfNoBtn     = document.getElementById('pdfNoBtn');
-  const overlay      = document.getElementById('processingOverlay');
-  const procMsg      = document.getElementById('processingMsg');
-  
-  /* ─── Character counter ─── */
-  descInput.addEventListener('input', () => {
-    charCount.textContent = descInput.value.length + ' / 400';
-  });
-  /* ─── File handling ─── */
-  function setFile(file) {
-    const allowed = [
-      'application/pdf',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'text/plain'
-    ];
-    const extOk = /\.(pdf|docx|txt)$/i.test(file.name);
+/* ─── State ─── */
+let selectedFiles = [];
+let useOCR = false;
 
-    if (!allowed.includes(file.type) && !extOk) {
-      alert('Unsupported file type.');
+const fileInput    = document.getElementById('fileInput');
+const dropZone     = document.getElementById('dropZone');
+const browseBtn    = document.getElementById('browseBtn');
+const fileDisplay  = document.getElementById('fileDisplay');
+const fileNameLbl  = document.getElementById('fileNameLabel');
+const removeBtn    = document.getElementById('removeFileBtn');
+const generateBtn  = document.getElementById('generateBtn');
+const descInput    = document.getElementById('notesDescription');
+const charCount    = document.getElementById('charCount');
+const overlay      = document.getElementById('processingOverlay');
+const procMsg      = document.getElementById('processingMsg');
+
+/* ─── Character counter ─── */
+descInput.addEventListener('input', () => {
+  charCount.textContent = descInput.value.length + ' / 400';
+});
+
+/* ─── File handling ─── */
+function setFiles(files) {
+  const allowedExt = /\.(pdf|txt)$/i;
+
+  let validFiles = [];
+
+  for (let file of files) {
+    if (!allowedExt.test(file.name)) {
+      alert("Only PDF and TXT allowed.");
       return;
     }
 
     if (file.size > 25 * 1024 * 1024) {
-      alert('File too large (max 25MB).');
+      alert("File too large (max 25MB).");
       return;
     }
 
-    selectedFile = file;
-    useOCR = false;
-    ocrBadge.style.display = 'none';
-
-    fileNameLbl.textContent = file.name;
-    fileDisplay.style.display = 'block';
+    validFiles.push(file);
   }
 
+  selectedFiles = validFiles;
 
-  function clearFile() {
-    selectedFile = null;
-    useOCR = false;
-    fileInput.value = '';
-    fileDisplay.style.display = 'none';
-    ocrBadge.style.display = 'none';
+  fileNameLbl.textContent = selectedFiles.length + " file(s) selected";
+  fileDisplay.style.display = 'block';
+}
+
+/* CLEAR */
+function clearFile() {
+  selectedFiles = [];
+  fileInput.value = '';
+  fileDisplay.style.display = 'none';
+}
+
+/* INPUT SELECT */
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length > 0) {
+    setFiles(fileInput.files);
   }
+});
 
+/* CLICK */
+browseBtn.addEventListener('click', () => fileInput.click());
 
-  browseBtn.addEventListener('click', () => fileInput.click());
-  dropZone.addEventListener('click', (e) => {
-    if (e.target !== browseBtn) fileInput.click();
-  });
+dropZone.addEventListener('click', (e) => {
+  if (e.target !== browseBtn) fileInput.click();
+});
 
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files[0]) setFile(fileInput.files[0]);
-  });
-  removeBtn.addEventListener('click', clearFile);
+/* DRAG DROP */
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.classList.add('drag-over');
+});
 
-  /* Drag & drop */
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('drag-over');
+});
 
-  dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropZone.classList.add('drag-over');
-  });
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
 
-  dropZone.addEventListener('dragleave', () => {
-    dropZone.classList.remove('drag-over');
-  });
-  
-  dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.classList.remove('drag-over');
-    if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
-  });
-
-  /* ─── PDF Modal ─── */
-  function askPdfType() {
-    return new Promise((resolve) => {
-      pdfModalResolve = resolve;
-      pdfModal.show();
-    });
+  if (e.dataTransfer.files.length > 0) {
+    setFiles(e.dataTransfer.files);
   }
+});
 
-  pdfYesBtn.addEventListener('click', () => {
-    pdfModal.hide();
-    if (pdfModalResolve) pdfModalResolve(true);
-  });
+removeBtn.addEventListener('click', clearFile);
 
-
-  pdfNoBtn.addEventListener('click', () => {
-    pdfModal.hide();
-    if (pdfModalResolve) pdfModalResolve(false);
-  });
-
-
-  /* ─── Generate Notes ─── */
-
-  generateBtn.addEventListener('click', async () => {
+/* ─── Generate Notes ─── */
+generateBtn.addEventListener('click', async () => {
   const owner = document.getElementById('ownerDropdown').value;
   const name = document.getElementById('notesName').value.trim();
   const description = descInput.value.trim();
@@ -339,9 +318,11 @@
   formData.append('name', name);
   formData.append('description', description);
 
-  if (selectedFile) {
-    formData.append('file', selectedFile);
-    formData.append('useOCR', useOCR ? 'true' : 'false');
+  /* ✅ MULTIPLE FILES */
+  if (selectedFiles.length > 0) {
+    selectedFiles.forEach(file => {
+      formData.append('files', file);
+    });
   }
 
   try {
@@ -366,7 +347,7 @@
     alert('Request failed.');
   }
 });
+</script>
 
-  </script>
 </body>
 </html>
