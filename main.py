@@ -17,7 +17,7 @@ app.add_middleware(
 
 # ✅ Gemini setup
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.0-pro")
+model = genai.GenerativeModel("gemini-pro")
 
 
 @app.get("/")
