@@ -9,7 +9,10 @@ app = FastAPI()
 # ✅ CORS Setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://atharvsi03.github.io/"],
+    allow_origins=[
+        "https://atharvsi03.github.io",
+        "https://atharvsi03.github.io/"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
