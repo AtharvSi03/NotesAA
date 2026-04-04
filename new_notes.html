@@ -167,7 +167,7 @@
       <div class="row p-3">
         <div class="col-12" style="text-align: left;">
           <!-- Hidden file input -->
-          <input type="file" id="fileInput" accept=".pdf,.txt" multiple style="display:none;"">
+          <input type="file" id="fileInput" accept=".pdf,.txt" multiple style="display:none;">
 
           <!-- Drop zone -->
           <div id="dropZone">
@@ -248,7 +248,12 @@ function setFiles(files) {
 
   selectedFiles = validFiles;
 
-  fileNameLbl.textContent = selectedFiles.length + " file(s) selected";
+  if (selectedFiles.length === 1) {
+    fileNameLbl.textContent = selectedFiles[0].name;
+  } else {
+    fileNameLbl.textContent = selectedFiles.map(f => f.name).join(", ");
+  }
+
   fileDisplay.style.display = 'block';
 }
 
