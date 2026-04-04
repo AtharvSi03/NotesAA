@@ -348,82 +348,56 @@
   /* ─── Generate Notes ─── */
 
   generateBtn.addEventListener('click', async () => {
-    const owner = document.getElementById('ownerDropdown').value;
-    const name = document.getElementById('notesName').value.trim();
-    const description = descInput.value.trim();
+  const owner = document.getElementById('ownerDropdown').value;
+  const name = document.getElementById('notesName').value.trim();
+  const description = descInput.value.trim();
 
-    if (!name) {
-      alert('Notes Name is required.');
-      return;
-    }
+  if (!name) {
+    alert('Notes Name is required.');
+    return;
+  }
 
-    if (name.includes(' ')) {
-      alert('Notes Name cannot contain spaces.');
-      return;
-    }
+  if (name.includes(' ')) {
+    alert('Notes Name cannot contain spaces.');
+    return;
+  }
 
+  procMsg.textContent = 'Generating notes…';
+  overlay.classList.add('show');
 
-    if (!selectedFile) {
-      alert('Please upload a file.');
-      return;
-    }
+  const formData = new FormData();
+  formData.append('owner', owner);
+  formData.append('name', name);
+  formData.append('description', description);
 
-
-    /* Check if PDF */
-    const isPDF = selectedFile.name.toLowerCase().endsWith('.pdf') ||
-    selectedFile.type === 'application/pdf';
-
-    if (isPDF) {
-      useOCR = await askPdfType();
-      if (useOCR) ocrBadge.style.display = 'inline-block';
-    }
-
-
-    /* Show loading */
-
-    procMsg.textContent = useOCR
-    ? 'Extracting text via OCR…'
-    : 'Generating notes…';
-
-    overlay.classList.add('show');
-
-
-    /* Build FormData */
-
-    const formData = new FormData();
-    formData.append('owner', owner);
-    formData.append('name', name);
-    formData.append('description', description);
+  if (selectedFile) {
     formData.append('file', selectedFile);
     formData.append('useOCR', useOCR ? 'true' : 'false');
+  }
 
+  try {
+    const response = await fetch('https://notesaa.onrender.com/generate', {
+      method: 'POST',
+      body: formData
+    });
 
-    try {
-      const response = await fetch('https://notesaa.onrender.com/generate', {
-        method: 'POST',
-        body: formData
-      });
+    const data = await response.json();
+    overlay.classList.remove('show');
 
-      const data = await response.json();
-      overlay.classList.remove('show');
-
-
-      if (data.error) {
-        console.error(data.error);
-        alert('Error: ' + data.error);
-        return;
-      }
-
-     console.log("Generated Notes:", data.generated_notes);
-     alert('Notes generated! Check console.');
-
-    } 
-    catch (err) {
-      overlay.classList.remove('show');
-      console.error(err);
-      alert('Request failed. Check console.');
+    if (data.error) {
+      alert('Error: ' + data.error);
+      return;
     }
-  });
+
+    document.getElementById("output").innerText = data.generated_notes;
+
+  } catch (err) {
+    overlay.classList.remove('show');
+    console.error(err);
+    alert('Request failed.');
+  }
+});
+
   </script>
 </body>
 </html>

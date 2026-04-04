@@ -1,13 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 import google.generativeai as genai
 import os
 
-# Initialize FastAPI app
+# Initialize app
 app = FastAPI()
 
-# ✅ TEMP CORS
+# ✅ CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,34 +15,51 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Configure Gemini
+# ✅ Gemini setup
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
-# Request model
-class NotesRequest(BaseModel):
-    owner: str
-    name: str
-    description: str
 
-# Root route
 @app.get("/")
 async def root():
     return {"message": "NotesAA backend is live 🚀"}
 
-# ✅ Gemini-powered route
+
+# 🔥 FILE + FORM ENDPOINT
 @app.post("/generate")
-async def generate_notes(data: NotesRequest):
-
-    print("✅ Request received:", data)
-
+async def generate_notes(
+    owner: str = Form(...),
+    name: str = Form(...),
+    description: str = Form(""),
+    file: UploadFile = File(None),
+    useOCR: str = Form("false")
+):
     try:
+        print("✅ Request:", owner, name, description, file.filename if file else "No file")
+
+        extracted_text = ""
+
+        # 🧠 Read file if exists
+        if file:
+            contents = await file.read()
+
+            # SIMPLE handling (no OCR yet)
+            if file.filename.endswith(".txt"):
+                extracted_text = contents.decode("utf-8", errors="ignore")
+
+            else:
+                extracted_text = f"[File uploaded: {file.filename}]"
+
+        # 🧠 Prompt
         prompt = f"""
 Create clean, well-structured study notes.
 
-Owner: {data.owner}
-Title: {data.name}
-Description: {data.description}
+Owner: {owner}
+Title: {name}
+Description: {description}
+
+File Content:
+{extracted_text}
 
 Format with:
 - Clear headings
@@ -55,11 +71,9 @@ Format with:
         response = model.generate_content(prompt)
 
         return {
-            "generated_notes": response.text
+            "generated_notes": getattr(response, "text", "⚠️ No response")
         }
 
     except Exception as e:
         print("❌ ERROR:", str(e))
-        return {
-            "error": str(e)
-        }
+        return {"error": str(e)}
