@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-import google.generativeai as genai
+from google import genai
 import os
 
 # Initialize app
@@ -17,7 +17,7 @@ app.add_middleware(
 
 # ✅ Gemini setup
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 
 @app.get("/")
