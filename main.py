@@ -6,7 +6,7 @@ import os
 # Initialize app
 app = FastAPI()
 
-# ✅ CORS
+# ✅ CORS Setup
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,7 +16,12 @@ app.add_middleware(
 )
 
 # ✅ Gemini setup
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Make sure GEMINI_API_KEY is set in your Render Environment Variables!
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    print("❌ ERROR: GEMINI_API_KEY not found in environment variables.")
+
+genai.configure(api_key=api_key)
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 
@@ -25,7 +30,7 @@ async def root():
     return {"message": "NotesAA backend is live 🚀"}
 
 
-# 🔥 FILE + FORM ENDPOINT
+# 🔥 FIXED FILE + FORM ENDPOINT
 @app.post("/generate")
 async def generate_notes(
     owner: str = Form(...),
@@ -35,45 +40,49 @@ async def generate_notes(
     useOCR: str = Form("false")
 ):
     try:
-        print("✅ Request:", owner, name, description, file.filename if file else "No file")
+        print(f"✅ Request from {owner}: {name} (File: {file.filename if file else 'None'})")
 
-        extracted_text = ""
+        content_to_send = []
 
-        # 🧠 Read file if exists
+        # 🧠 Handle File if it exists
         if file:
-            contents = await file.read()
+            # Read the raw bytes from the uploaded file
+            file_bytes = await file.read()
+            
+            # Create the part object for the Gemini API
+            file_part = {
+                "mime_type": file.content_type,  # e.g., 'application/pdf' or 'image/png'
+                "data": file_bytes
+            }
+            content_to_send.append(file_part)
 
-            # SIMPLE handling (no OCR yet)
-            if file.filename.endswith(".txt"):
-                extracted_text = contents.decode("utf-8", errors="ignore")
-
-            else:
-                extracted_text = f"[File uploaded: {file.filename}]"
-
-        # 🧠 Prompt
+        # 🧠 Create the Text Prompt
         prompt = f"""
-Create clean, well-structured study notes.
+        Create clean, well-structured study notes based on the provided content.
 
-Owner: {owner}
-Title: {name}
-Description: {description}
+        Metadata:
+        - Owner: {owner}
+        - Title: {name}
+        - Extra Description: {description}
 
-File Content:
-{extracted_text}
+        Instructions:
+        - Use clear headings (Markdown ## and ###)
+        - Use bullet points for readability
+        - Keep paragraphs short
+        - Organize by logical sections
+        - If a file is provided, prioritize its specific contents.
+        """
+        content_to_send.append(prompt)
 
-Format with:
-- Clear headings
-- Bullet points
-- Short paragraphs
-- Organized sections
-"""
-
-        response = model.generate_content(prompt)
+        # 🧠 Generate Content
+        # We pass the list [file_part, prompt] so Gemini processes both
+        response = model.generate_content(content_to_send)
 
         return {
-            "generated_notes": getattr(response, "text", "⚠️ No response")
+            "generated_notes": getattr(response, "text", "⚠️ No response from AI")
         }
 
     except Exception as e:
-        print("❌ ERROR:", str(e))
-        return {"error": str(e)}
+        print(f"❌ ERROR: {str(e)}")
+        # If there's an error, return a 500 status or a clear error message
+        return {"error": f"Internal Server Error: {str(e)}"}
