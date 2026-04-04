@@ -331,6 +331,11 @@ generateBtn.addEventListener('click', async () => {
     return;
   }
 
+  if (selectedFiles.length === 0) {
+    alert('Please upload at least one file.');
+    return;
+  }
+
   procMsg.textContent = 'Generating notes…';
   overlay.classList.add('show');
 
