@@ -174,7 +174,7 @@
             <div class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
             <p><strong>Drag & drop your file here</strong></p>
             <p class="mt-1">or <span class="browse-link" id="browseBtn">browse to upload</span></p>
-            <p class="mt-2"><small>Supported formats: <strong>PDF</strong>, <strong>DOCX</strong>, <strong>TXT</strong> &nbsp;·&nbsp; Max 25 MB</small> But for now please use only PDF as the website is in testing mode. Thank you!</p>
+            <p class="mt-2"><small>Supported formats: <strong>PDF</strong> and <strong>TXT</strong> &nbsp;·&nbsp; Max 25 MB</small> But for now please use only PDF as the website is in testing mode. Thank you!</p>
           </div>
 
           <!-- Selected file display -->
@@ -184,8 +184,6 @@
               <span class="file-name" id="fileNameLabel"></span>
               <i class="bi bi-x-circle-fill remove-file" id="removeFileBtn" title="Remove file"></i>
             </span>
-            <!-- OCR badge shown only for PDFs -->
-            <span id="ocrBadge" class="ocr-badge ms-2" style="display:none;"><i class="bi bi-eye-fill me-1"></i>Image PDF — OCR enabled</span>
           </div>
         </div>
 
@@ -199,38 +197,6 @@
   <section id="outputSection" class="p-3">
     <div id="output" style="white-space: pre-wrap; margin-top: 20px; text-align: left;"></div>
   </section>
-
-  <!-- ── PDF Image-Scan Modal ── -->
-  <div class="modal fade" id="pdfImageModal" tabindex="-1" aria-labelledby="pdfImageModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="pdfImageModalLabel">
-            <i class="bi bi-file-earmark-pdf text-danger me-2"></i>PDF Source Type
-          </h5>
-        </div>
-        <div class="modal-body">
-          <p>We detected you uploaded a <strong>PDF file</strong>.</p>
-          <p>Was this PDF <strong>created from scanned images or photographs</strong> (e.g. a scanned textbook, photographed notes)?</p>
-          <p class="text-secondary" style="font-size:0.87rem;">
-            If yes, we will use <strong>OCR (Optical Character Recognition)</strong> to extract the text from the images before generating your notes. This takes a little longer but ensures accurate results.
-          </p>
-          <div class="alert alert-warning py-2 px-3 mb-0" style="font-size:0.87rem;">
-            <i class="bi bi-info-circle me-1"></i>
-            If you're unsure, choose <strong>"Yes"</strong> — OCR works on regular PDFs too.
-          </div>
-        </div>
-        <div class="modal-footer gap-2 justify-content-center">
-          <button type="button" class="btn btn-outline-secondary px-4" id="pdfNoBtn">
-            <i class="bi bi-file-text me-1"></i>No, it's a regular PDF
-          </button>
-          <button type="button" class="btn btn-danger px-4" id="pdfYesBtn">
-            <i class="bi bi-image me-1"></i>Yes, use OCR
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- ── Processing Overlay ── -->
   <div id="processingOverlay">
