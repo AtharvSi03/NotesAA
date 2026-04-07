@@ -13,11 +13,44 @@
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="img/favicon.png">
   <style>
+    ::selection {
+      background-color: rgb(80, 125, 42);
+      color: white;
+    }
+    #hero {
+      position: relative;
+      background-image: url("img/hero.png");
+      background-size: cover;
+      background-position: center;
+    }
     .navbar {
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
     .navbar-brand img {
       max-height: 60px;
+    }
+    .nav-button {
+      margin-left: 10px;
+    }
+    .fab {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: rgb(255, 140, 0); /* orange 🟠 */
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      z-index: 1000;
+    }
+    @media (max-width: 768px) {
+      .nav-button{
+        margin-left: 0px;
+      }
     }
   </style>
 </head>
@@ -36,20 +69,50 @@
             <a class="nav-link active" href="index.html">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#"></a>
-          </li>
-          <li class="nav-item" style="margin-right: 15px;">
-            <a class="nav-link" href="#"></a>
+            <a class="nav-link" href="#about">About NotesAA</a>
           </li>
           <li class="nav-item">
             <a href="new_notes.html">
-              <button type="button" class="btn btn-danger">New Notes</button>
+              <button type="button" class="btn btn-danger nav-button">New Notes</button>
             </a>
           </li>
         </ul>
       </div>
     </div>
   </nav>
-  <div id="hero"></div>
+  <section id="hero">
+    <div class="container text-center py-5">
+      <h1 class="display-4 fw-bold">Welcome to Notes AA</h1>
+      <p class="lead mb-4">Your notes-taking assistant for effortless organization and productivity.</p>
+      <a href="new_notes.html" class="btn btn-primary btn-lg">Get Started</a>
+    </div>
+  </section>
+  <section id="about">
+    <div class="container py-5">
+      <h2>About NotesAA</h1>
+      <p>NotesAA is built to make studying less messy and more organized.
+        Instead of having notes scattered everywhere, it keeps everything in one place,
+        making it easier to find what you need. It’s simple by design —
+        no unnecessary features, no confusing layout, just a clean space to focus.
+        Created by a student, it understands how chaotic school can get.
+        It’s made for every student — even that one friend who studies the night before and still acts surprised</p>
+    </div>
+  </section>
+  <a id="emailBtn" class="fab text-decoration-none">
+    <i class="fa-regular fa-envelope" style="color: white; font-size: 25px;"></i>
+  </div>
+  <script>
+  const btn = document.getElementById("emailBtn");
+
+  btn.addEventListener("click", function () {
+    if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+      // Phone → open mail app
+      window.location.href = "mailto:atharvsin03@gmail.com";
+    } else {
+      // PC → open Gmail in browser
+      window.open("https://mail.google.com/mail/?view=cm&fs=1&to=atharvsin03@gmail.com", "_blank");
+    }
+  });
+</script>
 </body>
 </html>

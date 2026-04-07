@@ -74,7 +74,7 @@ async def generate_notes(
         - Organize by logical sections
         - If files are provided, combine and prioritize their contents
         - Do NOT use bold formatting anywhere
-        - If something is important, explicitly write "This paragraph is important!" at the end of that paragraph
+        - If something is important, put the "❗" emoji in front and at the back of the word
 
         """
 
