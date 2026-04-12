@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="auto">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Notes AA</title>
   <!-- Bootstrap -->
-   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <!-- Font Awesome -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="img/favicon.png">
   <style>
@@ -17,36 +18,51 @@
       background-color: rgb(80, 125, 42);
       color: white;
     }
+
     .tooltip-inner {
-      background-color: rgb(0, 0, 0); /* black */
-      color: rgb(255, 255, 255); /* white */
+      background-color: rgb(0, 0, 0);
+      /* black */
+      color: rgb(255, 255, 255);
+      /* white */
       font-size: 12px;
       border-radius: 6px;
     }
-    .bold {font-weight: bold;}
-    .italics {font-style: italic;}
+
+    .bold {
+      font-weight: bold;
+    }
+
+    .italics {
+      font-style: italic;
+    }
+
     #hero {
       position: relative;
       background-image: url("img/hero.png");
       background-size: cover;
       background-position: center;
     }
+
     .navbar {
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
+
     .navbar-brand img {
       max-height: 60px;
     }
+
     .nav-button {
       margin-left: 10px;
     }
+
     .fab {
       position: fixed;
       bottom: 20px;
       right: 20px;
       width: 60px;
       height: 60px;
-      background: rgb(255, 140, 0); /* orange 🟠 */
+      background: rgb(255, 140, 0);
+      /* orange 🟠 */
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -55,11 +71,13 @@
       cursor: pointer;
       z-index: 1000;
     }
+
     @media (max-width: 768px) {
-      .nav-button{
+      .nav-button {
         margin-left: 0px;
       }
     }
+
     .footer {
       position: fixed;
       bottom: 0;
@@ -70,57 +88,69 @@
       padding-top: 20px;
       padding-bottom: 20px;
     }
+
     .footer-container {
       max-width: 900px;
       margin: auto;
     }
+
     .footer-logo {
       width: 120px;
       margin-bottom: 15px;
     }
+
     .social-icons a {
       color: rgb(0, 123, 255);
       font-size: 22px;
       margin: 0 10px;
       transition: 0.3s;
     }
+
     .social-icons a:hover {
       color: rgb(0, 38, 255);
       transform: translateY(-2px);
     }
+
     .hosting {
       margin-top: 15px;
     }
+
     .render-wrap {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       margin-top: 5px;
     }
+
     .render-logo-fill {
       width: 18px;
       height: 18px;
       fill: rgb(120, 80, 255);
       transition: 0.3s;
     }
+
     .render-logo-fill:hover {
       transform: scale(1.1);
       fill: rgb(160, 120, 255);
     }
+
     .footer-bottom {
       margin-top: 20px;
       font-size: 13px;
     }
+
     .footer-bottom a {
       color: rgb(255, 165, 0);
       text-decoration: none;
       font-weight: 500;
     }
+
     .footer-bottom a:hover {
       text-decoration: underline;
     }
   </style>
 </head>
+
 <body>
   <nav class="navbar navbar-expand-lg bg-body sticky-top">
     <div class="container">
@@ -157,38 +187,22 @@
   <section id="about">
     <div class="container py-5">
       <h2>About NotesAA</h1>
-      <p>NotesAA is built to make studying less messy and more organized.
-        Instead of having notes scattered everywhere, it keeps everything in one place,
-        making it easier to find what you need. It’s simple by design —
-        no unnecessary features, no confusing layout, just a clean space to focus.
-        Created by a student, it understands how chaotic school can get.
-        It’s made for every student — even that one friend who studies the night before and still acts surprised</p>
+        <p>NotesAA is built to make studying less messy and more organized.
+          Instead of having notes scattered everywhere, it keeps everything in one place,
+          making it easier to find what you need. It’s simple by design —
+          no unnecessary features, no confusing layout, just a clean space to focus.
+          Created by a student, it understands how chaotic school can get.
+          It’s made for every student — even that one friend who studies the night before and still acts surprised</p>
     </div>
   </section>
-  <a id="emailBtn" class="fab text-decoration-none">
-    <i class="fa-regular fa-envelope" style="color: white; font-size: 25px;"></i>
-  </a>
-  <script>
-    const btn = document.getElementById("emailBtn");
-
-    btn.addEventListener("click", function () {
-      if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
-        // Phone → open mail app
-        window.location.href = "mailto:atharvsin03@gmail.com";
-      }
-      else {
-        // PC → open Gmail in browser
-        window.open("https://mail.google.com/mail/?view=cm&fs=1&to=atharvsin03@gmail.com", "_blank");
-      }
-    });
-  </script>
   <footer class="footer">
     <div class="footer-container">
       <!-- Logo -->
       <img src="img/logo.png" class="footer-logo">
       <!-- Socials -->
       <div class="social-icons">
-        <a href="https://www.linkedin.com/in/atharv-singh-1179823a9/" target="_blank" data-bs-toggle="tooltip" title="LinkedIn">
+        <a href="https://www.linkedin.com/in/atharv-singh-1179823a9/" target="_blank" data-bs-toggle="tooltip"
+          title="LinkedIn">
           <i class="bi bi-linkedin"></i>
         </a>
       </div>
@@ -197,11 +211,30 @@
         <span style="margin-right: 5px;">Backend hosted by:</span>
         <div class="render-wrap">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" class="render-logo-fill">
-            <path d="M26.827.01c-4.596-.216-8.461 3.107-9.12 7.487-.027.203-.066.4-.099.596-1.025 5.454-5.797 9.584-11.53 9.584a11.67 11.67 0 0 1-5.634-1.442.298.298 0 0 0-.444.262v18.854h17.602V22.097c0-2.439 1.971-4.419 4.4-4.419h4.4c4.982 0 8.99-4.15 8.795-9.197C35.02 3.937 31.35.226 26.827.01Z"></path>
+            <path
+              d="M26.827.01c-4.596-.216-8.461 3.107-9.12 7.487-.027.203-.066.4-.099.596-1.025 5.454-5.797 9.584-11.53 9.584a11.67 11.67 0 0 1-5.634-1.442.298.298 0 0 0-.444.262v18.854h17.602V22.097c0-2.439 1.971-4.419 4.4-4.419h4.4c4.982 0 8.99-4.15 8.795-9.197C35.02 3.937 31.35.226 26.827.01Z">
+            </path>
           </svg>
           <span>Render</span>
         </div>
       </div>
+      <a id="emailBtn" class="fab text-decoration-none">
+        <i class="fa-regular fa-envelope" style="color: white; font-size: 25px;"></i>
+      </a>
+      <script>
+        const btn = document.getElementById("emailBtn");
+
+        btn.addEventListener("click", function () {
+          if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+            // Phone → open mail app
+            window.location.href = "mailto:atharvsin03@gmail.com";
+          }
+          else {
+            // PC → open Gmail in browser
+            window.open("https://mail.google.com/mail/?view=cm&fs=1&to=atharvsin03@gmail.com", "_blank");
+          }
+        });
+      </script>
       <!-- Bottom -->
       <div class="footer-bottom text-center">
         © 2026 NotesAA |
