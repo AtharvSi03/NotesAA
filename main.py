@@ -74,7 +74,6 @@ async def generate_notes(
         - Organize by logical sections
         - If files are provided, combine and prioritize their contents
         - Do NOT use bold formatting anywhere
-        - If something is important, put the "<span class="bold">" text in front and "</span>" at the back of the word
 
         """
 
