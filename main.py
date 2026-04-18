@@ -77,7 +77,8 @@ async def generate_notes(
     - If multiple files are provided, combine them and prioritize the most relevant information
     - Avoid unnecessary explanations or filler text
     - If you have to bold something put "<b>" at the front and "</b>" at the back of the word
-    - If you have to italics something put "<i>" at the front and "</i>" at the back of the word
+    - If you have to italicize something put "<i>" at the front and "</i>" at the back of the word
+    - If you have to underline something put "<u>" at the front and "</u>" at the back of the word
     - Maintain clarity over complexity
     - Focus on delivering useful, actionable information
     """
