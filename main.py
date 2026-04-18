@@ -76,8 +76,8 @@ async def generate_notes(
     - Organize content in a logical flow
     - If multiple files are provided, combine them and prioritize the most relevant information
     - Avoid unnecessary explanations or filler text
-    - Do NOT use bold formatting anywhere
     - If you have to bold something put "<b>" at the front and "</b>" at the back of the word
+    - If you have to italics something put "<i>" at the front and "</i>" at the back of the word
     - Maintain clarity over complexity
     - Focus on delivering useful, actionable information
     """
