@@ -456,14 +456,17 @@
         setTimeout(() => {
           formSection.style.display = "none";
 
-          // Show output section
+          // Show output
           outputSection.style.display = "block";
 
-          setTimeout(() => {
-            outputSection.classList.add("fade-in");
-          }, 50);
+          // Force reflow (THIS is the magic fix)
+          void outputSection.offsetWidth;
+
+          // Now animate
+          outputSection.classList.add("fade-in");
 
         }, 600);
+
 
       } catch (err) {
         overlay.classList.remove('show');
