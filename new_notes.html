@@ -159,6 +159,26 @@
       font-size: 1rem;
       margin: 0;
     }
+
+    /* Smooth fade out */
+    .fade-out {
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.6s ease;
+    }
+
+    /* Smooth fade in */
+    .fade-in {
+      opacity: 1;
+      transform: translateY(0);
+      transition: all 0.8s ease;
+    }
+
+    /* Prepare output section */
+    #outputSection {
+      opacity: 0;
+      transform: translateY(20px);
+    }
   </style>
 </head>
 
@@ -255,8 +275,10 @@
     </div>
   </section>
 
-  <section id="outputSection" class="p-3" style="border-top: 3px soild;">
-    <div id="outputDiv" style="white-space: pre-wrap; margin-top: 20px; text-align: left;"><p id="output">Your notes will be shown here will be shown here</p></div>
+  <section id="outputSection" class="p-3" style="display:none; border-top: 3px soild;">
+    <div id="outputDiv" style="white-space: pre-wrap; margin-top: 20px; text-align: left;">
+      <p id="output">Your notes will be shown here will be shown here</p>
+    </div>
   </section>
 
   <!-- ── Processing Overlay ── -->
@@ -270,7 +292,7 @@
     let selectedFiles = [];
     let useOCR = false;
 
-    /* ─── Welcome to the const country ─── */
+    /* ─── Welcome to the 'const' country ─── */
     const fileInput = document.getElementById('fileInput');
     const dropZone = document.getElementById('dropZone');
     const browseBtn = document.getElementById('browseBtn');
@@ -303,17 +325,13 @@
           continue;
         }
 
-        // 🚫 Prevent duplicate files
         const alreadyExists = selectedFiles.some(f => f.name === file.name);
         if (alreadyExists) continue;
 
-        // ✅ ADD instead of overwrite
         selectedFiles.push(file);
       }
 
       updateFileDisplay();
-
-      // 🔥 reset so same file can be re-added
       fileInput.value = '';
     }
 
@@ -335,7 +353,7 @@
       fileDisplay.style.display = 'block';
     }
 
-    /* ─── CLEAR ALL FILES ─── */
+    /* ─── CLEAR FILES ─── */
     function clearFile() {
       selectedFiles = [];
       fileInput.value = '';
@@ -406,12 +424,9 @@
       formData.append('name', name);
       formData.append('description', description);
 
-      /* ✅ MULTIPLE FILES */
-      if (selectedFiles.length > 0) {
-        selectedFiles.forEach(file => {
-          formData.append('files', file);
-        });
-      }
+      selectedFiles.forEach(file => {
+        formData.append('files', file);
+      });
 
       try {
         const response = await fetch('https://notesaa.onrender.com/generate', {
@@ -427,15 +442,36 @@
           return;
         }
 
-        document.getElementById("output").innerHTML = DOMPurify.sanitize(data.generated_notes);
+        /* 🔥 ANIMATION PART */
+        const formSection = document.getElementById("create");
+        const outputSection = document.getElementById("outputSection");
+        const output = document.getElementById("output");
 
-      } 
-      catch (err) {
+        // Set output content
+        output.innerHTML = DOMPurify.sanitize(data.generated_notes);
+
+        // Fade out form
+        formSection.classList.add("fade-out");
+
+        setTimeout(() => {
+          formSection.style.display = "none";
+
+          // Show output section
+          outputSection.style.display = "block";
+
+          setTimeout(() => {
+            outputSection.classList.add("fade-in");
+          }, 50);
+
+        }, 600);
+
+      } catch (err) {
         overlay.classList.remove('show');
         console.error(err);
         alert('Request failed.');
       }
     });
+
   </script>
   <a id="emailBtn" class="fab text-decoration-none">
     <i class="fa-regular fa-envelope" style="color: white; font-size: 25px;"></i>
@@ -455,4 +491,5 @@
     });
   </script>
 </body>
+
 </html>
