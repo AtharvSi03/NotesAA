@@ -40,6 +40,10 @@
       font-weight: bold;
     }
 
+    .underline {
+      text-decoration: underline;
+    }
+
     /* ── Upload Drop Zone ── */
     #dropZone {
       border: 2px dashed #adb5bd;
@@ -158,26 +162,6 @@
       color: #fff;
       font-size: 1rem;
       margin: 0;
-    }
-
-    /* Smooth fade out */
-    .fade-out {
-      opacity: 0;
-      transform: translateY(-20px);
-      transition: all 0.6s ease;
-    }
-
-    /* Smooth fade in */
-    .fade-in {
-      opacity: 1;
-      transform: translateY(0);
-      transition: all 0.8s ease;
-    }
-
-    /* Prepare output section */
-    #outputSection {
-      opacity: 0;
-      transform: translateY(20px);
     }
   </style>
 </head>
@@ -442,7 +426,6 @@
           return;
         }
 
-        /* 🔥 ANIMATION PART */
         const formSection = document.getElementById("create");
         const outputSection = document.getElementById("outputSection");
         const output = document.getElementById("output");
@@ -450,23 +433,9 @@
         // Set output content
         output.innerHTML = DOMPurify.sanitize(data.generated_notes);
 
-        // Fade out form
-        formSection.classList.add("fade-out");
-
-        setTimeout(() => {
-          formSection.remove();
-
-          // Show output
-          outputSection.style.display = "block";
-
-          // Force reflow (THIS is the magic fix)
-          void outputSection.offsetWidth;
-
-          // Now animate
-          outputSection.classList.add("fade-in");
-
-        }, 600);
-
+        // Hide form, show output
+        formSection.style.display = "none";
+        outputSection.style.display = "block";
 
       } catch (err) {
         overlay.classList.remove('show');
@@ -474,7 +443,6 @@
         alert('Request failed.');
       }
     });
-
   </script>
   <a id="emailBtn" class="fab text-decoration-none">
     <i class="fa-regular fa-envelope" style="color: white; font-size: 25px;"></i>
@@ -494,5 +462,4 @@
     });
   </script>
 </body>
-
 </html>
