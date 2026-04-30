@@ -307,6 +307,7 @@
         if (file.size > 25 * 1024 * 1024) {
           alert("File too large (max 25MB).");
           continue;
+
         }
 
         const alreadyExists = selectedFiles.some(f => f.name === file.name);
@@ -441,23 +442,6 @@
         overlay.classList.remove('show');
         console.error(err);
         alert('Request failed.');
-      }
-    });
-  </script>
-  <a id="emailBtn" class="fab text-decoration-none">
-    <i class="fa-regular fa-envelope" style="color: white; font-size: 25px;"></i>
-  </a>
-  <script>
-    const btn = document.getElementById("emailBtn");
-
-    btn.addEventListener("click", function () {
-      if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
-        // Phone → open mail app
-        window.location.href = "mailto:atharvsin03@gmail.com";
-      }
-      else {
-        // PC → open Gmail in browser
-        window.open("https://mail.google.com/mail/?view=cm&fs=1&to=atharvsin03@gmail.com", "_blank");
       }
     });
   </script>
